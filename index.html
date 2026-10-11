@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Little Explorers Learning Adventure</title>
+<style>
+:root{
+  --sage:#A8BBA3;
+  --blush:#EBC6CA;
+  --cream:#FAF6EF;
+  --lav:#DCD4ED;
+  --char:#2D3142;
+  --gold:#F3D57A;
+  --mint:#DCEED4;
+  --white:#fff;
+  --shadow:0 16px 40px rgba(45,49,66,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(135deg,var(--cream),#fff9f3 50%,#f7eef8);
+  color:var(--char);
+}
+button{font:inherit}
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(168,187,163,.35);
+  display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between;
+  padding:12px 16px;
+}
+.brand{display:flex; align-items:center; gap:10px}
+.logo{
+  width:44px; height:44px; border-radius:14px; background:linear-gradient(135deg,var(--sage),var(--lav));
+  display:grid; place-items:center; font-size:24px;
+  box-shadow:var(--shadow);
+}
+.brand h1{font-size:1.1rem; margin:0}
+.brand small{display:block; color:#6b7280}
+.controls{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+.btn{
+  border:none; padding:10px 14px; border-radius:12px; cursor:pointer;
+  background:var(--white); color:var(--char); box-shadow:0 4px 16px rgba(0,0,0,.06);
+}
+.btn.primary{background:var(--sage); color:#fff}
+.btn.pink{background:var(--blush)}
+.progress-wrap{display:flex; align-items:center; gap:10px; min-width:180px}
+.progress{
+  height:10px; width:180px; background:#eee4d6; border-radius:999px; overflow:hidden;
+}
+.progress > div{height:100%; width:0; background:linear-gradient(90deg,var(--sage),#85aa7d)}
+.layout{
+  max-width:1200px; margin:24px auto; padding:0 16px 24px;
+}
+.book-shell{
+  background:linear-gradient(90deg,#eadfcc 0 3%,#fff 3% 97%,#eadfcc 97%);
+  border-radius:24px; padding:14px; box-shadow:var(--shadow);
+}
+.book{
+  position:relative; min-height:760px; background:var(--white); border-radius:18px; overflow:hidden;
+  border:1px solid rgba(168,187,163,.3);
+}
+.page{
+  display:none; min-height:760px; padding:34px; background:
+   radial-gradient(circle at top right, rgba(220,212,237,.25), transparent 22%),
+   radial-gradient(circle at bottom left, rgba(235,198,202,.22), transparent 18%),
+   var(--white);
+}
+.page.active{display:block; animation:turn .45s ease}
+@keyframes turn{from{opacity:0; transform:perspective(1000px) rotateY(14deg) translateX(10px)} to{opacity:1; transform:none}}
+.page-num{position:absolute; bottom:18px; right:28px; color:#7b8090; font-size:.9rem}
+.badge{display:inline-block; padding:8px 12px; border-radius:999px; background:var(--lav); font-weight:700; font-size:.85rem}
+.hero{
+  display:grid; grid-template-columns:1.2fr .9fr; gap:28px; align-items:center;
+}
+.hero-card,.card,.mini-card,.game-card{
+  background:rgba(255,255,255,.92); border:1px solid rgba(168,187,163,.28); border-radius:22px; padding:22px;
+  box-shadow:0 10px 28px rgba(45,49,66,.06);
+}
+.hero-title{font-size:2.5rem; margin:12px 0 10px; line-height:1.1}
+.subtitle{font-size:1.08rem; color:#596273; line-height:1.7}
+.illustration{
+  background:linear-gradient(180deg,#fff8f1,#fff); border-radius:30px; padding:26px; position:relative; min-height:320px;
+  display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.cloud{position:absolute; font-size:56px; opacity:.55}
+.c1{top:18px; left:16px}.c2{top:52px; right:24px}.c3{bottom:18px; left:40px}
+.kids{font-size:148px; filter:drop-shadow(0 8px 12px rgba(0,0,0,.08))}
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px}
+.stat{background:var(--cream); border-radius:18px; padding:14px; text-align:center}
+.stat strong{display:block; font-size:1.3rem}
+.section-title{font-size:2rem; margin:10px 0 4px}
+.section-sub{color:#617081; margin-bottom:18px}
+.grid-2{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+.pill{display:inline-block; margin:4px 6px 0 0; background:var(--mint); padding:8px 12px; border-radius:999px; font-size:.95rem}
+.big-letter,.big-number,.big-shape{font-size:74px; font-weight:800; line-height:1; margin-bottom:8px}
+.word-row{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+.word-chip{background:var(--cream); padding:10px 12px; border-radius:14px}
+.flash-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:18px}
+.flashcard{height:220px; perspective:1000px; cursor:pointer}
+.flash-inner{position:relative; width:100%; height:100%; transform-style:preserve-3d; transition:transform .6s}
+.flashcard.flipped .flash-inner{transform:rotateY(180deg)}
+.flash-front,.flash-back{
+  position:absolute; inset:0; border-radius:22px; backface-visibility:hidden; padding:20px; display:flex; flex-direction:column; justify-content:center; align-items:center;
+  border:1px solid rgba(168,187,163,.28); box-shadow:0 10px 24px rgba(45,49,66,.08);
+}
+.flash-front{background:linear-gradient(180deg,#fff,#fff6f7)}
+.flash-back{background:linear-gradient(180deg,#f8fff8,#f4f0fb); transform:rotateY(180deg); text-align:left; align-items:flex-start; overflow:auto}
+.quiz-q{margin-bottom:18px}
+.option{
+  width:100%; margin:8px 0; border:none; border-radius:14px; padding:12px 14px; text-align:left; background:#fff8f2; cursor:pointer;
+  box-shadow:0 4px 10px rgba(0,0,0,.04)
+}
+.option:hover{background:#fef1f3}
+.option.correct{background:#dff2dd}
+.option.wrong{background:#f8d7da}
+.feedback{margin-top:8px; padding:10px 12px; border-radius:12px; display:none}
+.feedback.show{display:block}
+.feedback.good{background:#e4f5e0}.feedback.bad{background:#fde7ea}
+.match-board{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:16px}
+.match-item{
+  background:#fff; border:2px dashed #d6decb; border-radius:18px; padding:16px; text-align:center; cursor:pointer; min-height:90px;
+  display:flex; align-items:center; justify-content:center; font-size:1.05rem;
+}
+.match-item.selected{outline:3px solid var(--blush); background:#fff3f5}
+.match-item.done{background:#dff2dd; border-style:solid; cursor:default}
+.match-status{margin-top:10px; font-weight:700}
+.reward-wrap{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+.certificate{
+  border:4px double #d9c78e; border-radius:24px; padding:28px; background:linear-gradient(180deg,#fffdf7,#fff);
+  text-align:center;
+}
+.footer-nav{display:flex; justify-content:space-between; gap:12px; padding:14px 0 4px}
+.toc-list{display:grid; grid-template-columns:repeat(2,1fr); gap:14px}
+.toc-item{cursor:pointer}
+.small{font-size:.9rem;color:#657487}
+.print-note{background:#fffaf0; border-left:5px solid var(--gold)}
+.speak-btn{margin-top:10px; background:var(--lav)}
+@media (max-width: 900px){
+  .hero,.grid-2,.grid-3,.flash-grid,.reward-wrap,.toc-list{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .match-board{grid-template-columns:repeat(2,1fr)}
+  .page{padding:22px}
+  .hero-title{font-size:2rem}
+  .book{min-height:820px}
+}
+@media (max-width: 600px){
+  .progress-wrap{display:none}
+  .book{min-height:900px}
+  .btn{padding:10px 12px}
+  .big-letter,.big-number,.big-shape{font-size:54px}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">🌈</div>
+    <div>
+      <h1>Little Explorers Learning Adventure</h1>
+      <small>Ages 3–5 · English · Bahasa Melayu · Tamil</small>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="progress-wrap">
+      <span class="small">Progress</span>
+      <div class="progress"><div id="progressBar"></div></div>
+    </div>
+    <button class="btn" onclick="toggleFullscreen()">Full Screen</button>
+    <button class="btn pink" onclick="window.print()">Print Companion</button>
+    <button class="btn primary" onclick="goPage(1)">Open Book</button>
+  </div>
+</div>
+<div class="layout">
+  <div class="book-shell">
+    <div class="book" id="book">
+
+      <section class="page active" data-title="Cover">
+        <div class="hero">
+          <div>
+            <span class="badge">Premium Interactive Edition</span>
+            <div class="hero-title">Little Explorers<br>Learning Adventure</div>
+            <p class="subtitle">A beautiful mixed-subject learning flipbook for children aged 3–5 with trilingual learning, working flashcards, mini-games, quizzes and a printable companion.</p>
+            <div class="word-row">
+              <span class="pill">ABC</span>
+              <span class="pill">123</span>
+              <span class="pill">Colours</span>
+              <span class="pill">Shapes</span>
+              <span class="pill">Animals</span>
+              <span class="pill">Games</span>
+            </div>
+            <div class="stats">
+              <div class="stat"><strong>12</strong>Learning Pages</div>
+              <div class="stat"><strong>18</strong>Flashcards</div>
+              <div class="stat"><strong>8</strong>Quiz Questions</div>
+              <div class="stat"><strong>1</strong>Matching Game</div>
+            </div>
+            <div class="hero-card" style="margin-top:18px">
+              <strong>Languages included</strong>
+              <p>English • Bahasa Melayu • Tamil</p>
+              <p class="small">Example: Apple • Epal • ஆப்பிள்</p>
+            </div>
+          </div>
+          <div class="illustration">
+            <div class="cloud c1">☁️</div>
+            <div class="cloud c2">⭐</div>
+            <div class="cloud c3">🌸</div>
+            <div class="kids">🧒🏽👧🏽</div>
+          </div>
+        </div>
+        <div class="page-num">Page 1</div>
+      </section>
+
+      <section class="page" data-title="Contents">
+        <span class="badge">Table of Contents</span>
+        <div class="section-title">Choose an adventure</div>
+        <p class="section-sub">Tap a section to jump directly into learning.</p>
+        <div class="toc-list">
+          <div class="card toc-item" onclick="goPage(2)"><strong>1. Meet the Book</strong><p class="small">How to use the learning flipbook.</p></div>
+          <div class="card toc-item" onclick="goPage(3)"><strong>2. Alphabet Adventure</strong><p class="small">A, B, C with trilingual words.</p></div>
+          <div class="card toc-item" onclick="goPage(4)"><strong>3. Number Adventure</strong><p class="small">1 to 5 with fun counting ideas.</p></div>
+          <div class="card toc-item" onclick="goPage(5)"><strong>4. Colour Adventure</strong><p class="small">Red, blue, yellow and more.</p></div>
+          <div class="card toc-item" onclick="goPage(6)"><strong>5. Shape Adventure</strong><p class="small">Circle, square, triangle, star.</p></div>
+          <div class="card toc-item" onclick="goPage(7)"><strong>6. Animal Adventure</strong><p class="small">Animals and their sounds.</p></div>
+          <div class="card toc-item" onclick="goPage(8)"><strong>7. Flashcards</strong><p class="small">Tap-to-flip learning cards.</p></div>
+          <div class="card toc-item" onclick="goPage(9)"><strong>8. Quiz Time</strong><p class="small">Check your child's learning.</p></div>
+          <div class="card toc-item" onclick="goPage(10)"><strong>9. Matching Game</strong><p class="small">Match pictures and words.</p></div>
+          <div class="card toc-item" onclick="goPage(11)"><strong>10. Reward Page</strong><p class="small">Celebrate your little explorer.</p></div>
+          <div class="card toc-item" onclick="goPage(12)"><strong>11. Parent Guide</strong><p class="small">Ideas for teaching and selling.</p></div>
+        </div>
+        <div class="page-num">Page 2</div>
+      </section>
+
+      <section class="page" data-title="Meet the Book">
+        <span class="badge">Welcome</span>
+        <div class="section-title">How to use this flipbook</div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>For children</h3>
+            <ul>
+              <li>Tap next and previous to turn the pages.</li>
+              <li>Click the flashcards to flip them.</li>
+              <li>Choose answers in quiz time.</li>
+              <li>Play the matching game at the end.</li>
+            </ul>
+          </div>
+          <div class="card print-note">
+            <h3>For adults</h3>
+            <ul>
+              <li>Use the printable companion for tracing and colouring.</li>
+              <li>Read each word in three languages.</li>
+              <li>Repeat aloud and let the child point to the correct answer.</li>
+              <li>Use 10–15 minutes per section.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="hero-card" style="margin-top:18px">
+          <strong>Trilingual example</strong>
+          <p><strong>Sun</strong> • Matahari • சூரியன்</p>
+          <button class="btn speak-btn" onclick="speakText('Sun. Matahari. Sooriyan.')">🔊 Hear it</button>
+        </div>
+        <div class="page-num">Page 3</div>
+      </section>
+
+      <section class="page" data-title="Alphabet Adventure">
+        <span class="badge">Alphabet Adventure</span>
+        <div class="section-title">A, B, C</div>
+        <p class="section-sub">Let’s learn letters and words together.</p>
+        <div class="grid-3">
+          <div class="mini-card">
+            <div class="big-letter">A</div>
+            <strong>Apple • Epal • ஆப்பிள்</strong>
+            <p>Say the sound: <strong>/a/</strong></p>
+            <button class="btn speak-btn" onclick="speakText('A. Apple. Epal. Aappil.')">🔊 Hear A</button>
+          </div>
+          <div class="mini-card">
+            <div class="big-letter">B</div>
+            <strong>Ball • Bola • பந்து</strong>
+            <p>Say the sound: <strong>/b/</strong></p>
+            <button class="btn speak-btn" onclick="speakText('B. Ball. Bola. Panthu.')">🔊 Hear B</button>
+          </div>
+          <div class="mini-card">
+            <div class="big-letter">C</div>
+            <strong>Cat • Kucing • பூனை</strong>
+            <p>Say the sound: <strong>/k/</strong></p>
+            <button class="btn speak-btn" onclick="speakText('C. Cat. Kucing. Poonai.')">🔊 Hear C</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <strong>Try this:</strong>
+          <p>Ask your child: “Can you find something red like an apple?” or “Can you make a /b/ sound like ball?”</p>
+        </div>
+        <div class="page-num">Page 4</div>
+      </section>
+
+      <section class="page" data-title="Number Adventure">
+        <span class="badge">Number Adventure</span>
+        <div class="section-title">1 to 5</div>
+        <p class="section-sub">Count together using fingers, toys or snacks.</p>
+        <div class="grid-3">
+          <div class="mini-card"><div class="big-number">1</div><strong>One • Satu • ஒன்று</strong><p>One sun ☀️</p></div>
+          <div class="mini-card"><div class="big-number">2</div><strong>Two • Dua • இரண்டு</strong><p>Two stars ⭐⭐</p></div>
+          <div class="mini-card"><div class="big-number">3</div><strong>Three • Tiga • மூன்று</strong><p>Three apples 🍎🍎🍎</p></div>
+          <div class="mini-card"><div class="big-number">4</div><strong>Four • Empat • நான்கு</strong><p>Four balls ⚽⚽⚽⚽</p></div>
+          <div class="mini-card"><div class="big-number">5</div><strong>Five • Lima • ஐந்து</strong><p>Five ducks 🐥🐥🐥🐥🐥</p></div>
+        </div>
+        <div class="page-num">Page 5</div>
+      </section>
+
+      <section class="page" data-title="Colour Adventure">
+        <span class="badge">Colour Adventure</span>
+        <div class="section-title">Learning colours</div>
+        <div class="grid-2">
+          <div class="card" style="background:#fff5f6"><h3>🔴 Red</h3><p>Red • Merah • சிவப்பு</p></div>
+          <div class="card" style="background:#eef5ff"><h3>🔵 Blue</h3><p>Blue • Biru • நீலம்</p></div>
+          <div class="card" style="background:#fffbe8"><h3>🟡 Yellow</h3><p>Yellow • Kuning • மஞ்சள்</p></div>
+          <div class="card" style="background:#eef9ee"><h3>🟢 Green</h3><p>Green • Hijau • பச்சை</p></div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <strong>Colour hunt:</strong>
+          <p>Look around the room. Can you find one <em>red</em> thing? One <em>blue</em> thing?</p>
+        </div>
+        <div class="page-num">Page 6</div>
+      </section>
+
+      <section class="page" data-title="Shape Adventure">
+        <span class="badge">Shape Adventure</span>
+        <div class="section-title">Fun with shapes</div>
+        <div class="grid-2">
+          <div class="mini-card"><div class="big-shape">◯</div><strong>Circle • Bulatan • வட்டம்</strong><p>A ball looks like a circle.</p></div>
+          <div class="mini-card"><div class="big-shape">□</div><strong>Square • Segi empat sama • சதுரம்</strong><p>A window can look like a square.</p></div>
+          <div class="mini-card"><div class="big-shape">△</div><strong>Triangle • Segi tiga • முக்கோணம்</strong><p>A pizza slice can look like a triangle.</p></div>
+          <div class="mini-card"><div class="big-shape">★</div><strong>Star • Bintang • நட்சத்திரம்</strong><p>Stars twinkle in the sky.</p></div>
+        </div>
+        <div class="page-num">Page 7</div>
+      </section>
+
+      <section class="page" data-title="Animal Adventure">
+        <span class="badge">Animal Adventure</span>
+        <div class="section-title">Meet the animals</div>
+        <div class="grid-3">
+          <div class="mini-card"><div style="font-size:62px">🐱</div><strong>Cat • Kucing • பூனை</strong><p>Sound: Meow!</p></div>
+          <div class="mini-card"><div style="font-size:62px">🐶</div><strong>Dog • Anjing • நாய்</strong><p>Sound: Woof!</p></div>
+          <div class="mini-card"><div style="font-size:62px">🐮</div><strong>Cow • Lembu • மாடு</strong><p>Sound: Moo!</p></div>
+          <div class="mini-card"><div style="font-size:62px">🐥</div><strong>Chick • Anak ayam • குஞ்சு</strong><p>Sound: Cheep!</p></div>
+          <div class="mini-card"><div style="font-size:62px">🐟</div><strong>Fish • Ikan • மீன்</strong><p>Fish swim in water.</p></div>
+          <div class="mini-card"><div style="font-size:62px">🦋</div><strong>Butterfly • Rama-rama • பட்டாம்பூச்சி</strong><p>Butterflies are colourful.</p></div>
+        </div>
+        <div class="page-num">Page 8</div>
+      </section>
+
+      <section class="page" data-title="Flashcards">
+        <span class="badge">Flashcards</span>
+        <div class="section-title">Tap to flip</div>
+        <p class="section-sub">Use these cards to revise key words in three languages.</p>
+        <div class="flash-grid">
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">🍎</div><strong>What is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Apple</strong><p>Epal</p><p>ஆப்பிள்</p><p class="small">Memory tip: Apples can be red.</p></div></div></div>
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">⚽</div><strong>What is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Ball</strong><p>Bola</p><p>பந்து</p><p class="small">Round like a circle.</p></div></div></div>
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">🐱</div><strong>Who is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Cat</strong><p>Kucing</p><p>பூனை</p><p class="small">Cats say meow.</p></div></div></div>
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">⭐</div><strong>What shape is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Star</strong><p>Bintang</p><p>நட்சத்திரம்</p><p class="small">Stars twinkle at night.</p></div></div></div>
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">🟡</div><strong>What colour is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Yellow</strong><p>Kuning</p><p>மஞ்சள்</p><p class="small">Think of the sun.</p></div></div></div>
+          <div class="flashcard" onclick="this.classList.toggle('flipped')"><div class="flash-inner"><div class="flash-front"><div style="font-size:54px">3️⃣</div><strong>Which number is this?</strong><p>Tap to flip</p></div><div class="flash-back"><strong>Three</strong><p>Tiga</p><p>மூன்று</p><p class="small">Count 1, 2, 3.</p></div></div></div>
+        </div>
+        <div class="page-num">Page 9</div>
+      </section>
+
+      <section class="page" data-title="Quiz Time">
+        <span class="badge">Quiz Time</span>
+        <div class="section-title">Let’s check what we learned</div>
+        <div class="game-card quiz-q" data-correct="b">
+          <strong>1. Which one is a cat?</strong>
+          <button class="option" data-choice="a">🐶 Dog</button>
+          <button class="option" data-choice="b">🐱 Cat</button>
+          <button class="option" data-choice="c">🐟 Fish</button>
+          <div class="feedback">Correct answer: Cat • Kucing • பூனை</div>
+        </div>
+        <div class="game-card quiz-q" data-correct="c">
+          <strong>2. Which number means “Three”?</strong>
+          <button class="option" data-choice="a">1</button>
+          <button class="option" data-choice="b">5</button>
+          <button class="option" data-choice="c">3</button>
+          <div class="feedback">Correct answer: 3 • Three • Tiga • மூன்று</div>
+        </div>
+        <div class="game-card quiz-q" data-correct="a">
+          <strong>3. Which one is red?</strong>
+          <button class="option" data-choice="a">🔴</button>
+          <button class="option" data-choice="b">🔵</button>
+          <button class="option" data-choice="c">🟢</button>
+          <div class="feedback">Correct answer: Red • Merah • சிவப்பு</div>
+        </div>
+        <div class="game-card quiz-q" data-correct="b">
+          <strong>4. Which shape is a triangle?</strong>
+          <button class="option" data-choice="a">◯</button>
+          <button class="option" data-choice="b">△</button>
+          <button class="option" data-choice="c">□</button>
+          <div class="feedback">Correct answer: Triangle • Segi tiga • முக்கோணம்</div>
+        </div>
+        <div class="card">
+          <strong>Your score:</strong> <span id="quizScore">0</span> / 4
+          <p class="small">Each question can be answered once.</p>
+        </div>
+        <div class="page-num">Page 10</div>
+      </section>
+
+      <section class="page" data-title="Matching Game">
+        <span class="badge">Matching Game</span>
+        <div class="section-title">Match the picture to the word</div>
+        <p class="section-sub">First choose a picture, then choose the matching word.</p>
+        <div class="match-board" id="matchBoard"></div>
+        <div class="match-status" id="matchStatus">Matches found: 0 / 4</div>
+        <div class="card"><strong>Pairs to find:</strong> Apple, Cat, Star, Ball</div>
+        <div class="page-num">Page 11</div>
+      </section>
+
+      <section class="page" data-title="Reward Page">
+        <span class="badge">Well Done!</span>
+        <div class="section-title">Little Explorer Reward Page</div>
+        <div class="reward-wrap">
+          <div class="certificate">
+            <div style="font-size:60px">🏆</div>
+            <h2 style="border:none; display:block">Certificate of Brilliant Learning</h2>
+            <p>This certificate is proudly awarded to</p>
+            <div style="font-size:1.5rem; margin:18px 0; border-bottom:2px dashed #c9b579; padding-bottom:8px">________________________</div>
+            <p>for completing <strong>Little Explorers Learning Adventure</strong></p>
+            <p>Date: ____________________</p>
+          </div>
+          <div class="card">
+            <h3>Celebrate progress</h3>
+            <p>Give your child a sticker, a star stamp or a high-five after finishing the flipbook.</p>
+            <p><strong>Say this:</strong> “I am proud of you. You are learning so well!”</p>
+            <div style="font-size:54px">🌟🌟🌟</div>
+          </div>
+        </div>
+        <div class="page-num">Page 12</div>
+      </section>
+
+      <section class="page" data-title="Parent Guide">
+        <span class="badge">Parent Guide</span>
+        <div class="section-title">How to use and sell this product later</div>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Teaching tips</h3>
+            <ul>
+              <li>Use short sessions: 10 to 15 minutes.</li>
+              <li>Repeat the words in the three languages.</li>
+              <li>Print selected pages for colouring and tracing.</li>
+              <li>Let children answer without pressure.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Commercial notes</h3>
+            <ul>
+              <li>This is a working prototype for your product line.</li>
+              <li>Next version can include more pages, more games and full printable packs.</li>
+              <li>Sell as a digital download with an HTML file + printable PDF.</li>
+              <li>Create preview images before listing on Threads, Etsy or Payhip.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-num">Page 13</div>
+      </section>
+
+    </div>
+    <div class="footer-nav">
+      <button class="btn" onclick="prevPage()">← Previous</button>
+      <div class="small" id="pageLabel">Page 1 of 13</div>
+      <button class="btn primary" onclick="nextPage()">Next →</button>
+    </div>
+  </div>
+</div>
+<script>
+const pages = Array.from(document.querySelectorAll('.page'));
+let currentPage = 0;
+function updateBook(){
+  pages.forEach((p,i)=>p.classList.toggle('active', i===currentPage));
+  document.getElementById('pageLabel').textContent = `Page ${currentPage+1} of ${pages.length}`;
+  document.getElementById('progressBar').style.width = `${((currentPage+1)/pages.length)*100}%`;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function goPage(n){ currentPage = Math.max(0, Math.min(pages.length-1, n)); updateBook(); }
+function nextPage(){ goPage(currentPage+1); }
+function prevPage(){ goPage(currentPage-1); }
+function toggleFullscreen(){
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen?.(); }
+  else{ document.exitFullscreen?.(); }
+}
+function speakText(text){
+  if(!('speechSynthesis' in window)) return alert('Speech is not supported in this browser.');
+  const u = new SpeechSynthesisUtterance(text);
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+let score=0;
+document.querySelectorAll('.quiz-q').forEach(box=>{
+  const correct = box.dataset.correct;
+  const feedback = box.querySelector('.feedback');
+  box.querySelectorAll('.option').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(box.dataset.done==='1') return;
+      box.dataset.done='1';
+      const choice = btn.dataset.choice;
+      box.querySelectorAll('.option').forEach(o=>{
+        o.disabled = true;
+        if(o.dataset.choice===correct) o.classList.add('correct');
+      });
+      if(choice===correct){
+        btn.classList.add('correct');
+        feedback.className='feedback show good';
+        score++;
+      }else{
+        btn.classList.add('wrong');
+        feedback.className='feedback show bad';
+      }
+      feedback.style.display='block';
+      document.getElementById('quizScore').textContent=score;
+    });
+  });
+});
+
+const matchPairs = [
+  {id:'apple', left:'🍎', right:'Apple'},
+  {id:'cat', left:'🐱', right:'Cat'},
+  {id:'star', left:'⭐', right:'Star'},
+  {id:'ball', left:'⚽', right:'Ball'}
+];
+const board = document.getElementById('matchBoard');
+let tiles = [];
+matchPairs.forEach(p=>{ tiles.push({type:'left', id:p.id, label:p.left}); tiles.push({type:'right', id:p.id, label:p.right}); });
+tiles.sort(()=>Math.random()-0.5);
+let selected = null;
+let matches = 0;
+function renderBoard(){
+  board.innerHTML='';
+  tiles.forEach((t, idx)=>{
+    const d = document.createElement('button');
+    d.className='match-item';
+    d.textContent=t.label;
+    d.type='button';
+    if(t.done) d.classList.add('done');
+    if(selected===idx) d.classList.add('selected');
+    d.onclick=()=>handleTile(idx);
+    board.appendChild(d);
+  });
+}
+function handleTile(idx){
+  const tile = tiles[idx];
+  if(tile.done) return;
+  if(selected===null){ selected=idx; renderBoard(); return; }
+  if(selected===idx){ selected=null; renderBoard(); return; }
+  const first = tiles[selected];
+  if(first.id===tile.id && first.type!==tile.type){
+    first.done = true; tile.done = true; matches++;
+    document.getElementById('matchStatus').textContent = `Matches found: ${matches} / 4`;
+    if(matches===4){ document.getElementById('matchStatus').textContent = 'Amazing! You matched all 4 pairs!'; }
+  }
+  selected=null; renderBoard();
+}
+renderBoard();
+updateBook();
+</script>
+</body>
+</html>
